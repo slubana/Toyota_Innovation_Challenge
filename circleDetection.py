@@ -4,12 +4,15 @@ import numpy as np
 # Let's load a simple image with 3 black squares
 image = cv2.imread('./Metal_1.jpg')
 cv2.waitKey(0)
-  
+
+#Slicing using ROI
+#cropped = image[0:350,100:310].copy()
+
 # Grayscale
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 # Find Canny edges
-edged = cv2.Canny(gray, 30, 200)
+edged = cv2.Canny(gray, 30, 200,)
 cv2.waitKey(0)
   
 # Finding Contours
@@ -17,16 +20,25 @@ cv2.waitKey(0)
 # since findContours alters the image
 contours, hierarchy = cv2.findContours(edged, 
     cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-  
-cv2.imshow('Canny Edges After Contouring', edged)
-cv2.waitKey(0)
-  
-print("Number of Contours found = " + str(len(contours)))
-  
+
+circles = []
+for contour in contours:
+    area = cv2.contourArea(contour)
+    # gives area of contour
+    perimeter = cv2.arcLength(contour, closed=True)
+    # gives perimeter of contour
+
+    borders = cv2.approxPolyDP(curve=contour,epsilon=0.05*perimeter,closed=True)
+    # approximate boundaries for given polygon contour
+    if len(borders) > 3 and area > 40:
+        circles.append(contour)
+        
+
 # Draw all contours
 # -1 signifies drawing all contours
-cv2.drawContours(image, contours, -1, (0, 255, 0), 3)
-  
+cv2.drawContours(image, circles, -1, (0, 255, 0), 3)
+
+cv2.imshow('Canny',edged)
 cv2.imshow('Contours', image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
